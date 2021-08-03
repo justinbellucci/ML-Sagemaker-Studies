@@ -2,8 +2,10 @@ import argparse
 import json
 import os
 import pandas as pd
+
 import torch
 import torch.optim as optim
+import torch.nn as nn
 import torch.utils.data
 
 # imports the model in model.py by name
@@ -116,14 +118,12 @@ if __name__ == '__main__':
     # Model Parameters
     parser.add_argument('--input_features', type=int, default=8, metavar='IN',
                         help='number of input features to model (default: 8)')
-    parser.add_argument('--hidden_dim', type=int, default=25, metavar='H',
+    parser.add_argument('--hidden_dim', type=int, default=25, metavar='N',
                         help='number of hidden dimensions (default: 25)')
     parser.add_argument('--output_dim', type=int, default=1, metavar='OUT',
                         help='number of output dimensions (default: 1)')
-    parser.add_argument('--epochs', type=int, default=25, metavar='E',
-                        help='number of epochs to train (default: 25)')
-    parser.add_argument('--learn_rate', type=float, default=0.001, matavar='LR',
-                        help='learning rate of the Adam Optimizer (default: 0.001)')
+    parser.add_argument('--lr', type=float, default=0.001, metavar='LR',
+                        help='learning rate (default: 0.001)')
     
     # args holds all passed-in arguments
     args = parser.parse_args()
@@ -140,7 +140,7 @@ if __name__ == '__main__':
     model = BinaryClassifier(args.input_features, args.hidden_dim, args.output_dim)
     model.to(device) # move model to GPU if available, else CPU
 
-    optimizer = optim.adam(model.parameters())
+    optimizer = optim.Adam(model.parameters(), lr=args.lr)
     criterion = nn.BCELoss() # Binary Cross Entropy loss function
 
     # Trains the model (given line of code, which calls the above training function)
@@ -153,7 +153,7 @@ if __name__ == '__main__':
             'hidden_dim': args.hidden_dim,
             'output_dim': args.output_dim,
             'epochs': args.epochs,
-            'learn_rate': args.learn_rate
+            'lr': args.lr
         }
         torch.save(model_info, f)
 
